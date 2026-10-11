@@ -65,3 +65,29 @@ jobs:
         run: |
           source install/setup.bash
           src/geofence-guard/scripts/smoke.sh
+
+  # Fly the mission in PX4 SITL twice: straight to the autopilot (the control,
+  # which must breach the fence) and through the guard (which must not). The
+  # assertion is on the logged odometry, not on what the guard says it did.
+  sitl:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the ROS + MAVROS image
+        run: docker build -f sitl/Dockerfile -t geofence-guard-sitl:dev .
+      - name: Pull PX4 SITL
+        run: docker pull jonasvautherin/px4-gazebo-headless:1.15.4
+      - name: Fly both runs
+        run: sitl/run.sh sitl-out both
+      - name: Assert the guarded run stayed inside the fence
+        run: |
+          docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -e MPLCONFIGDIR=/tmp \
+            -v "$PWD":/repo -v "$PWD/sitl-out":/out geofence-guard-sitl:dev \
+            python3 /repo/sitl/analyze.py /out --check --gif /out/sitl.gif
+      - name: Keep the logs and the animation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sitl-run
+          path: sitl-out/

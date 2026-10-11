@@ -1,0 +1,25 @@
+# examples/field.fence shifted by (-10, -10) so that PX4's local origin, where
+# the vehicle spawns, is 10 m inside the south-west corner rather than on it.
+# Frame 'map' is MAVROS's local ENU frame.
+
+frame map
+margin 5
+altitude 2 120
+max_state_age 0.5
+max_leg 300
+
+fence
+  -10 -10
+  290 -10
+  290 110
+  110 110
+  110 240
+  -10 240
+end
+
+exclude mast
+  190 30
+  205 30
+  205 45
+  190 45
+end

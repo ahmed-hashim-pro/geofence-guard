@@ -1,0 +1,18 @@
+{
+  "unguarded": {
+    "seconds_outside_fence": 11.8,
+    "furthest_outside_m": 42.7,
+    "min_fence_clearance_m": -42.71,
+    "min_exclusion_clearance_m": 30.35,
+    "refused_waypoints": []
+  },
+  "guarded": {
+    "seconds_outside_fence": 0.0,
+    "furthest_outside_m": 0.0,
+    "min_fence_clearance_m": 8.25,
+    "min_exclusion_clearance_m": 130.56,
+    "refused_waypoints": [
+      "waypoint 3 refused by guard (path_leaves_fence); skipping"
+    ]
+  }
+}

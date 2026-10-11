@@ -1,7 +1,7 @@
 BUILD ?= build
 ROS_IMAGE ?= ros:jazzy-ros-base
 
-.PHONY: build test check ros demo clean
+.PHONY: build test check ros demo sitl-image sitl clean
 
 build:
 	cmake -S core -B $(BUILD) -DCMAKE_BUILD_TYPE=Release -DGFG_WERROR=ON
@@ -34,6 +34,20 @@ demo: build
 	  -o $(BUILD)/static/geofence-guard
 	docker run --rm -u $$(id -u):$$(id -g) -e HOME=/tmp -v $(CURDIR):/vhs \
 	  -v $(CURDIR)/$(BUILD)/static:/opt/gfg:ro ghcr.io/charmbracelet/vhs:v0.10.0 docs/demo.tape
+
+# PX4 SITL: fly sitl/mission.csv without and with the guard, check the guarded
+# run never left the fence, and re-render docs/sitl.gif. Needs Docker only;
+# the PX4 image is about 5 GB.
+SITL_OUT ?= $(BUILD)/sitl
+sitl-image:
+	docker build -f sitl/Dockerfile -t geofence-guard-sitl:dev .
+
+sitl: sitl-image
+	sitl/run.sh $(SITL_OUT) both
+	docker run --rm -u $$(id -u):$$(id -g) -e HOME=/tmp -e MPLCONFIGDIR=/tmp -v $(CURDIR):/repo \
+	  -v $(CURDIR)/$(SITL_OUT):/out geofence-guard-sitl:dev \
+	  python3 /repo/sitl/analyze.py /out --check --gif /repo/docs/sitl.gif
+	cp $(SITL_OUT)/results.json docs/sitl-results.json
 
 clean:
 	rm -rf $(BUILD) $(BUILD)-asan

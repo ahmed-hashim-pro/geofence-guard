@@ -1,0 +1,9 @@
+# Waypoints for planner.py: x,y,z in 'map'. The vehicle starts at the origin.
+# Waypoint 3 is the shortcut: both ends inside, the line between them crosses
+# the notch. Without the guard it is flown; with it, it is refused and the
+# planner moves on.
+0,0,30
+10,220,30
+270,90,30
+60,60,30
+0,0,30

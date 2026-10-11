@@ -34,6 +34,27 @@ that one case and the ones next to it.
 from the guard's actual decisions. The shaded band is the 5 m margin a target
 or a path may not enter.*
 
+### In PX4 SITL
+
+The same mission, flown twice in PX4 1.15 software-in-the-loop by the same
+naive planner. On the left, its setpoints go straight to the autopilot. On the
+right, they go through `geofence-guard`:
+
+![Two top-down views of the L-shaped field. Left, without the guard: the vehicle flies the shortcut straight across the notch, and the part of its track outside the fence is drawn red. Right, with geofence-guard: the shortcut is refused with path_leaves_fence, the vehicle holds, the planner moves on to the next waypoint, and the track stays inside the fence](docs/sitl.gif)
+
+| | Without the guard | With the guard |
+| --- | --- | --- |
+| Time outside the fence | **11.8 s** | 0 s |
+| Furthest outside | **42.7 m** | n/a |
+| Closest approach to the fence | n/a | 8.2 m (margin 5 m) |
+| Shortcut leg | flown | refused (`path_leaves_fence`), held 3 s, skipped |
+
+*Measured from the logged odometry of the runs in
+[`docs/sitl-results.json`](docs/sitl-results.json), not from what the guard
+reported. The animation is drawn from those logs; it is not a screen
+recording of the simulator. `make sitl` flies both runs again and re-renders
+it, and CI does the same on every push.*
+
 ## Quickstart
 
 ### The core and the CLI, with no ROS
@@ -71,6 +92,9 @@ You need Docker, not a ROS install:
 ```bash
 make ros    # colcon build + node tests + launch-and-drive smoke test, in ros:jazzy
 ```
+
+`make sitl` flies the PX4 SITL comparison shown above (Docker only; the PX4
+image is about 5 GB).
 
 Or in your own workspace:
 
@@ -254,12 +278,27 @@ and the parameter wiring.
 The core is built with GCC and Clang with `-Werror`, and the suite runs again
 under AddressSanitizer and UBSan.
 
+**In PX4 SITL.** CI flies `sitl/mission.csv` in PX4 1.15 SITL through MAVROS,
+twice. The pass condition is about where the vehicle went: every airborne
+odometry sample of the guarded run must be inside the fence and outside the
+exclusion zone. Two more conditions stop the test from passing for the wrong
+reason. The guarded run must have refused something, or it didn't exercise the
+guard. And the unguarded control run must leave the fence, or the scenario has
+drifted and the guarded result proves nothing.
+
+The first SITL run caught a fault in the test's planner, not in the guard. It
+switched to `AUTO.LAND` the moment it came within 2 m of the last waypoint,
+still moving fast, and the autopilot's landing overshot to 4.9 m from the
+fence, inside the margin. In `AUTO.LAND` the guard has no authority, so the
+planner now waits until the vehicle has nearly stopped before handing over.
+
 ## What this does not do
 
-- **It has not flown.** Nothing here has run against PX4 or ArduPilot SITL, or
-  on an aircraft. The next step is a SITL job in CI that flies `shortcut.csv` and
-  asserts the vehicle never leaves the fence. Until that exists, the claims
-  above are about the decision, not about a vehicle.
+- **It has flown in simulation only.** The SITL runs use PX4 1.15 with a
+  simulated quadcopter (Gazebo Classic's `iris`) in a world with no wind, one
+  mission and one vehicle. On those runs the autopilot tracked the setpoints
+  well inside a 5 m margin. A real aircraft in gusts will track worse, and
+  nothing here measures by how much. ArduPilot has not been tried.
 - **It limits where, not how fast.** Speed, acceleration and attitude limits
   belong to the autopilot (`MPC_XY_VEL_MAX` and similar). The guard trusts that
   the vehicle flies roughly straight between setpoints, within the margin.
@@ -287,7 +326,8 @@ ros2/geofence_guard_ros/
   launch/ config/
 scripts/smoke.sh      launch the installed node and drive it from the ros2 CLI
 examples/             field.fence, survey.csv, shortcut.csv
-docs/                 README diagrams and demo.gif (make demo regenerates them)
+sitl/                 PX4 SITL harness: Dockerfile, run.sh, planner.py, analyze.py
+docs/                 README diagrams, demo.gif, sitl.gif (make demo / make sitl)
 ```
 
 ## License
