@@ -38,7 +38,21 @@ or a path may not enter.*
 
 The same mission, flown twice in PX4 1.15 software-in-the-loop by the same
 naive planner. On the left, its setpoints go straight to the autopilot. On the
-right, they go through `geofence-guard`:
+right, they go through `geofence-guard`. This is Gazebo's own 3D view, recorded
+during the flights:
+
+![Gazebo recording, side by side. The fence is drawn as translucent yellow walls and the mast as a red block; a blue sphere marks the drone. Left, without the guard: the drone flies the shortcut out over the notch, captioned OUTSIDE THE FENCE, and ends with "Left the fence for 12 s, up to 42 m outside". Right, with geofence-guard: the shortcut is refused with path_leaves_fence, the drone carries on inside the fence and ends with "Never left the fence"](docs/sitl-gazebo.gif)
+
+*Recorded from Gazebo Classic's GUI on a virtual display, sped up 4x
+([mp4](docs/sitl-gazebo.mp4)). Three things in the picture are not part of
+the simulation's physics. The walls and mast are drawn from the envelope file
+with no collision, so a vehicle can pass through them as it would through the
+real boundary. The blue sphere is a 10 m marker added to the drone's model as
+a visual only, because the 0.5 m airframe is a few pixels at this range. The
+captions are generated from the flight telemetry. `make sitl-video` records
+and composes it again.*
+
+The same two runs as a top-down plot of the logged telemetry:
 
 ![Two top-down views of the L-shaped field. Left, without the guard: the vehicle flies the shortcut straight across the notch, and the part of its track outside the fence is drawn red. Right, with geofence-guard: the shortcut is refused with path_leaves_fence, the vehicle holds, the planner moves on to the next waypoint, and the track stays inside the fence](docs/sitl.gif)
 
@@ -326,8 +340,10 @@ ros2/geofence_guard_ros/
   launch/ config/
 scripts/smoke.sh      launch the installed node and drive it from the ros2 CLI
 examples/             field.fence, survey.csv, shortcut.csv
-sitl/                 PX4 SITL harness: Dockerfile, run.sh, planner.py, analyze.py
-docs/                 README diagrams, demo.gif, sitl.gif (make demo / make sitl)
+sitl/                 PX4 SITL harness: Dockerfile, run.sh, planner.py, analyze.py,
+                      make_world.py + render_video.py for the Gazebo recording
+docs/                 README diagrams, demo.gif, sitl.gif, sitl-gazebo.{gif,mp4}
+                      (make demo / make sitl / make sitl-video)
 ```
 
 ## License

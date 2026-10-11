@@ -1,7 +1,7 @@
 BUILD ?= build
 ROS_IMAGE ?= ros:jazzy-ros-base
 
-.PHONY: build test check ros demo sitl-image sitl clean
+.PHONY: build test check ros demo sitl-image sitl sitl-video clean
 
 build:
 	cmake -S core -B $(BUILD) -DCMAKE_BUILD_TYPE=Release -DGFG_WERROR=ON
@@ -48,6 +48,14 @@ sitl: sitl-image
 	  -v $(CURDIR)/$(SITL_OUT):/out geofence-guard-sitl:dev \
 	  python3 /repo/sitl/analyze.py /out --check --gif /repo/docs/sitl.gif
 	cp $(SITL_OUT)/results.json docs/sitl-results.json
+
+# Record Gazebo's 3D view of both runs and compose docs/sitl-gazebo.{mp4,gif}.
+sitl-video: sitl-image
+	RECORD=1 sitl/run.sh $(SITL_OUT)-video both
+	docker run --rm -u $$(id -u):$$(id -g) -e HOME=/tmp -e MPLCONFIGDIR=/tmp -v $(CURDIR):/repo \
+	  -v $(CURDIR)/$(SITL_OUT)-video:/out -w /repo/sitl geofence-guard-sitl:dev bash -c '\
+	  python3 analyze.py /out --check && \
+	  python3 render_video.py /out /repo/docs/sitl-gazebo.mp4 --gif /repo/docs/sitl-gazebo.gif'
 
 clean:
 	rm -rf $(BUILD) $(BUILD)-asan

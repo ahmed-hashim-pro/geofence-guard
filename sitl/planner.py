@@ -76,7 +76,9 @@ class Planner(Node):
 
         self.log_file = open(log_path, "w", newline="")
         self.log = csv.writer(self.log_file)
-        self.log.writerow(["t", "x", "y", "z", "wp", "tx", "ty", "tz", "action", "codes", "mode"])
+        self.log.writerow(
+            ["t", "wall", "x", "y", "z", "wp", "tx", "ty", "tz", "action", "codes", "mode"]
+        )
         self.create_timer(0.05, self.tick)
 
     def now(self):
@@ -84,7 +86,7 @@ class Planner(Node):
 
     def event(self, text):
         self.get_logger().info(text)
-        self.events.append({"t": round(self.now(), 2), "event": text})
+        self.events.append({"t": round(self.now(), 2), "wall": round(time.time(), 3), "event": text})
 
     def target(self):
         return self.mission[min(self.index, len(self.mission) - 1)]
@@ -104,7 +106,7 @@ class Planner(Node):
         self.speed = math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
         tx, ty, tz = self.target()
         self.log.writerow(
-            [f"{self.now():.3f}", f"{p.x:.3f}", f"{p.y:.3f}", f"{p.z:.3f}", self.index,
+            [f"{self.now():.3f}", f"{time.time():.3f}", f"{p.x:.3f}", f"{p.y:.3f}", f"{p.z:.3f}", self.index,
              tx, ty, tz, self.last_action, self.last_codes, self.state.mode]
         )
 

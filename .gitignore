@@ -4,3 +4,5 @@ install/
 log/
 .cache/
 compile_commands.json
+__pycache__/
+*.pyc

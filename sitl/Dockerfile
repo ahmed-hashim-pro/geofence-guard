@@ -3,7 +3,7 @@
 FROM ros:jazzy-ros-base
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      ros-jazzy-mavros ros-jazzy-mavros-extras python3-matplotlib python3-pil \
+      ros-jazzy-mavros ros-jazzy-mavros-extras python3-matplotlib python3-pil ffmpeg xdotool fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/* \
     && /opt/ros/jazzy/lib/mavros/install_geographiclib_datasets.sh
 
