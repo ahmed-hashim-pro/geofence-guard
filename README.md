@@ -28,6 +28,12 @@ straight line between the two ends cuts across the missing corner. A check that
 only looks at the target accepts this leg. Most of this project exists to handle
 that one case and the ones next to it.
 
+![The L-shaped field: legs 1 and 2 accepted in green; leg 3, from the top of the west arm to the east arm, is dashed red and refused as path_leaves_fence because it crosses the notch](docs/shortcut.svg)
+
+*Rendered by `geofence-guard render examples/field.fence examples/shortcut.csv`
+from the guard's actual decisions. The shaded band is the 5 m margin a target
+or a path may not enter.*
+
 ## Quickstart
 
 ### The core and the CLI, with no ROS
@@ -38,16 +44,25 @@ A C++17 compiler, CMake 3.16+, GoogleTest (`apt install libgtest-dev`).
 git clone https://github.com/ahmed-hashim-pro/geofence-guard.git
 cd geofence-guard
 
-make test              # build, then 85 unit and property tests + 6 CLI tests
+make test              # build, then 85 unit and property tests + 8 CLI tests
 make check             # the same suite under AddressSanitizer and UBSan
 
 ./build/geofence-guard validate examples/field.fence
 ./build/geofence-guard check examples/field.fence examples/survey.csv
+./build/geofence-guard render examples/field.fence examples/survey.csv > survey.svg
 ```
+
+![Terminal recording: the survey mission passes 9/9 legs, the shortcut mission is refused at leg 3 with exit code 1, and an envelope file with a misspelt key is rejected with its line number](docs/demo.gif)
+
+*Recorded from the real CLI with [VHS](https://github.com/charmbracelet/vhs);
+`make demo` re-records it and re-renders the diagrams.*
 
 The core library has no dependencies. Exit codes for `check` are 0 when every
 leg passes, 1 when any leg is refused, and 2 when the envelope or mission file
-is unusable.
+is unusable. `render` draws the same decisions as an SVG, which is the quickest
+way to review a mission before it flies:
+
+![The survey mission: nine green legs in a lawnmower pattern around the L-shaped field, clear of the margin band and the mast](docs/survey.svg)
 
 ### The ROS 2 node
 
@@ -264,7 +279,7 @@ under AddressSanitizer and UBSan.
 ```
 core/                 C++17 library + CLI, no dependencies (colcon: plain cmake package)
   include/ src/       geometry, envelope parser, guard
-  cli/                geofence-guard validate | check
+  cli/                geofence-guard validate | check | render
   tests/              geometry, envelope, guard, properties
 ros2/geofence_guard_ros/
   src/                the node: subscriptions, hold latch, decision JSON
@@ -272,6 +287,7 @@ ros2/geofence_guard_ros/
   launch/ config/
 scripts/smoke.sh      launch the installed node and drive it from the ros2 CLI
 examples/             field.fence, survey.csv, shortcut.csv
+docs/                 README diagrams and demo.gif (make demo regenerates them)
 ```
 
 ## License

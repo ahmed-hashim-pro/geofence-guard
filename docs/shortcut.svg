@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="832.0" height="812.7" viewBox="0 0 832.0 812.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="arrow1a7f37" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a7f37"/></marker>
+  <marker id="arrowcf222e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#cf222e"/></marker>
+  <marker id="arrowbc4c00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#bc4c00"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<polygon points="64.1,684.6 767.9,684.6 767.9,403.1 345.6,403.1 345.6,98.1 64.1,98.1 " fill="#f0f7f0"/>
+<polygon points="64.1,684.6 767.9,684.6 767.9,403.1 345.6,403.1 345.6,98.1 64.1,98.1 " fill="none" stroke="#d4a72c" stroke-opacity="0.45" stroke-width="23.5" stroke-linejoin="round"/>
+<path fill="#ffffff" fill-rule="evenodd" d="M0,0 H832.0 V812.7 H0 Z M64.1,684.6 767.9,684.6 767.9,403.1 345.6,403.1 345.6,98.1 64.1,98.1 Z"/>
+<polygon points="64.1,684.6 767.9,684.6 767.9,403.1 345.6,403.1 345.6,98.1 64.1,98.1 " fill="none" stroke="#24292f" stroke-width="1.5"/>
+<text x="36.0" y="40.0" font-size="16" font-weight="600" fill="#24292f">field.fence + shortcut.csv: 2/3 legs ok</text>
+<polygon points="533.3,590.7 568.5,590.7 568.5,555.6 533.3,555.6 " fill="none" stroke="#d4a72c" stroke-opacity="0.45" stroke-width="23.5" stroke-linejoin="round"/>
+<polygon points="533.3,590.7 568.5,590.7 568.5,555.6 533.3,555.6 " fill="#ffebe9" stroke="#cf222e" stroke-width="1.5"/>
+<text x="550.9" y="547.4" font-size="12" text-anchor="middle" fill="#cf222e">mast</text>
+<line x1="87.6" y1="661.1" x2="111.1" y2="637.7" stroke="#1a7f37" stroke-width="2.5" marker-end="url(#arrow1a7f37)"/>
+<circle cx="99.3" cy="649.4" r="9" fill="#ffffff" stroke="#1a7f37" stroke-width="1.5"/>
+<text x="99.3" y="653.4" font-size="11" font-weight="600" text-anchor="middle" fill="#1a7f37">1</text>
+<line x1="111.1" y1="637.7" x2="111.1" y2="145.1" stroke="#1a7f37" stroke-width="2.5" marker-end="url(#arrow1a7f37)"/>
+<circle cx="111.1" cy="391.4" r="9" fill="#ffffff" stroke="#1a7f37" stroke-width="1.5"/>
+<text x="111.1" y="395.4" font-size="11" font-weight="600" text-anchor="middle" fill="#1a7f37">2</text>
+<line x1="111.1" y1="145.1" x2="720.9" y2="450.0" stroke="#cf222e" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrowcf222e)"/>
+<circle cx="416.0" cy="297.5" r="9" fill="#ffffff" stroke="#cf222e" stroke-width="1.5"/>
+<text x="416.0" y="301.5" font-size="11" font-weight="600" text-anchor="middle" fill="#cf222e">3</text>
+<rect x="426.0" y="310.5" width="195.2" height="18" rx="3" fill="#ffffff" stroke="#cf222e" stroke-width="1"/>
+<text x="430.0" y="323.5" font-size="12" font-weight="600" fill="#cf222e">REFUSED: path_leaves_fence</text>
+<rect x="81.6" y="655.1" width="12" height="12" fill="#24292f"/>
+<text x="97.6" y="677.1" font-size="11" fill="#24292f">start</text>
+<line x1="36.0" y1="742.7" x2="62.0" y2="742.7" stroke="#1a7f37" stroke-width="2.5"/>
+<text x="68.0" y="746.7" font-size="12" fill="#57606a">accepted</text>
+<line x1="128.0" y1="742.7" x2="154.0" y2="742.7" stroke="#bc4c00" stroke-width="2.5"/>
+<text x="160.0" y="746.7" font-size="12" fill="#57606a">accepted (recovery)</text>
+<line x1="291.5" y1="742.7" x2="317.5" y2="742.7" stroke="#cf222e" stroke-width="2.5" stroke-dasharray="8 5"/>
+<text x="323.5" y="746.7" font-size="12" fill="#57606a">refused</text>
+<rect x="377.0" y="736.7" width="26" height="12" fill="#d4a72c" fill-opacity="0.45"/>
+<text x="409.0" y="746.7" font-size="12" fill="#57606a">margin band (5.0 m)</text>
+<path d="M678.7,764.7 v4 h117.3 v-4" fill="none" stroke="#24292f" stroke-width="1.5"/>
+<text x="737.4" y="760.7" font-size="11" text-anchor="middle" fill="#57606a">50 m</text>
+<text x="36.0" y="768.7" font-size="11" fill="#57606a">frame 'map', north up, altitude band 2.0-120.0 m</text>
+</svg>

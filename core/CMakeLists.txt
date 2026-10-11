@@ -34,7 +34,7 @@ target_include_directories(geofence_guard_core PUBLIC
 target_compile_options(geofence_guard_core PRIVATE ${GFG_WARNINGS})
 set_target_properties(geofence_guard_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-add_executable(geofence-guard cli/main.cpp)
+add_executable(geofence-guard cli/main.cpp cli/render.cpp)
 target_link_libraries(geofence-guard PRIVATE geofence_guard_core)
 target_compile_options(geofence-guard PRIVATE ${GFG_WARNINGS})
 
@@ -85,6 +85,13 @@ if(GFG_BUILD_TESTS)
   set_tests_properties(cli_check_reports_reason PROPERTIES PASS_REGULAR_EXPRESSION "path_leaves_fence")
   add_test(NAME cli_bad_envelope COMMAND geofence-guard validate ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/typo.fence)
   set_tests_properties(cli_bad_envelope PROPERTIES WILL_FAIL ON)
+  # render: the picture must carry the same decisions as `check`.
+  add_test(NAME cli_render_marks_refusal COMMAND geofence-guard render ${EX}/field.fence ${EX}/shortcut.csv)
+  set_tests_properties(cli_render_marks_refusal PROPERTIES
+    PASS_REGULAR_EXPRESSION "2/3 legs ok.*REFUSED: path_leaves_fence")
+  add_test(NAME cli_render_clean COMMAND geofence-guard render ${EX}/field.fence ${EX}/survey.csv)
+  set_tests_properties(cli_render_clean PROPERTIES
+    PASS_REGULAR_EXPRESSION "9/9 legs ok" FAIL_REGULAR_EXPRESSION "REFUSED")
   add_test(NAME cli_no_args COMMAND geofence-guard)
   set_tests_properties(cli_no_args PROPERTIES WILL_FAIL ON)
 endif()
