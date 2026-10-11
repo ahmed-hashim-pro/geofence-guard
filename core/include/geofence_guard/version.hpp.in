@@ -1,0 +1,5 @@
+#pragma once
+
+namespace gfg {
+inline constexpr const char* kVersion = "@PROJECT_VERSION@";
+}

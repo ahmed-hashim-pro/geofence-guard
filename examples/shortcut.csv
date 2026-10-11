@@ -1,0 +1,6 @@
+# The same field, but the planner cuts the corner: both ends of leg 3 are
+# inside the fence, and the straight line between them is not.
+10,10,0
+20,20,30
+20,230,30
+280,100,30

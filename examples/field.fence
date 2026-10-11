@@ -1,0 +1,24 @@
+# An L-shaped survey field with a radio mast near its south edge.
+# Local ENU frame, metres, origin at the launch point's south-west corner.
+
+frame map
+margin 5                 # metres kept from every boundary
+altitude 2 120           # z, metres above the origin
+max_state_age 0.5        # seconds
+max_leg 300              # metres from the vehicle to any one target
+
+fence
+  0   0
+  300 0
+  300 120
+  120 120                # the inner corner: the field is not convex
+  120 250
+  0   250
+end
+
+exclude mast
+  200 40
+  215 40
+  215 55
+  200 55
+end

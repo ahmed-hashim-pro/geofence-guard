@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  core:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GoogleTest
+        run: sudo apt-get update && sudo apt-get install -y libgtest-dev ninja-build
+      - name: Configure
+        run: cmake -S core -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -DGFG_WERROR=ON
+      - name: Build
+        run: cmake --build build
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  # Geometry bugs are index arithmetic; the sanitizers turn an off-by-one into
+  # a failed build instead of a wrong answer.
+  sanitizers:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GoogleTest
+        run: sudo apt-get update && sudo apt-get install -y libgtest-dev ninja-build
+      - name: Build with ASan + UBSan
+        run: |
+          cmake -S core -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGFG_WERROR=ON -DGFG_SANITIZE=ON
+          cmake --build build
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  # The node is built and tested in a real ROS 2 install, then launched as a
+  # separate process and driven from the ros2 CLI. Unit tests of the node
+  # prove the callbacks; only the launched process proves the package.
+  ros2:
+    runs-on: ubuntu-24.04
+    container: ros:jazzy-ros-base
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: src/geofence-guard
+      - name: Build
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --cmake-args -DGFG_BUILD_TESTS=OFF -DGFG_WERROR=ON
+      - name: Test
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon test --packages-select geofence_guard_ros --event-handlers console_direct+
+          colcon test-result --verbose
+      - name: Launch and drive the node
+        run: |
+          source install/setup.bash
+          src/geofence-guard/scripts/smoke.sh
