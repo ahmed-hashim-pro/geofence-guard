@@ -113,7 +113,8 @@ image is about 5 GB).
 Or in your own workspace:
 
 ```bash
-cd ~/ros2_ws/src && git clone https://github.com/ahmed-hashim-pro/geofence-guard.git
+mkdir -p ~/ros2_ws/src && cd ~/ros2_ws/src
+git clone https://github.com/ahmed-hashim-pro/geofence-guard.git
 cd .. && colcon build --cmake-args -DGFG_BUILD_TESTS=OFF
 source install/setup.bash
 
