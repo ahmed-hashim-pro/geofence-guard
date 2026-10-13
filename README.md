@@ -49,8 +49,10 @@ the simulation's physics. The walls and mast are drawn from the envelope file
 with no collision, so a vehicle can pass through them as it would through the
 real boundary. The blue sphere is a 10 m marker added to the drone's model as
 a visual only, because the 0.5 m airframe is a few pixels at this range. The
-captions are generated from the flight telemetry. `make sitl-video` records
-and composes it again.*
+captions are generated from the flight telemetry. This recording is a
+separate flight of the same mission, and its captions round to whole numbers,
+so they differ slightly from the table below. `make sitl-video` records and
+composes it again.*
 
 The same two runs as a top-down plot of the logged telemetry:
 
@@ -60,14 +62,14 @@ The same two runs as a top-down plot of the logged telemetry:
 | --- | --- | --- |
 | Time outside the fence | **11.8 s** | 0 s |
 | Furthest outside | **42.7 m** | n/a |
-| Closest approach to the fence | n/a | 8.2 m (margin 5 m) |
+| Closest approach to the fence | n/a | 8.25 m (margin 5 m) |
 | Shortcut leg | flown | refused (`path_leaves_fence`), held 3 s, skipped |
 
 *Measured from the logged odometry of the runs in
 [`docs/sitl-results.json`](docs/sitl-results.json), not from what the guard
-reported. The animation is drawn from those logs; it is not a screen
-recording of the simulator. `make sitl` flies both runs again and re-renders
-it, and CI does the same on every push.*
+reported. The animation is drawn from those logs, with its captions rounded
+for display; it is not a screen recording of the simulator. `make sitl` flies
+both runs again and re-renders it, and CI does the same on every push.*
 
 ## Quickstart
 
@@ -79,7 +81,7 @@ A C++17 compiler, CMake 3.16+, GoogleTest (`apt install libgtest-dev`).
 git clone https://github.com/ahmed-hashim-pro/geofence-guard.git
 cd geofence-guard
 
-make test              # build, then 85 unit and property tests + 8 CLI tests
+make test              # build, then 87 unit and property tests + 9 CLI tests
 make check             # the same suite under AddressSanitizer and UBSan
 
 ./build/geofence-guard validate examples/field.fence
@@ -95,7 +97,8 @@ make check             # the same suite under AddressSanitizer and UBSan
 The core library has no dependencies. Exit codes for `check` are 0 when every
 leg passes, 1 when any leg is refused, and 2 when the envelope or mission file
 is unusable. `render` draws the same decisions as an SVG, which is the quickest
-way to review a mission before it flies:
+way to review a mission before it flies. It exits 0 even when legs are refused,
+because the refusals are drawn in the picture; use `check` to gate on them:
 
 ![The survey mission: nine green legs in a lawnmower pattern around the L-shaped field, clear of the margin band and the mast](docs/survey.svg)
 
