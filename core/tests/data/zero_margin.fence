@@ -1,0 +1,9 @@
+frame map
+margin 0
+altitude 2 120
+max_state_age 0.5
+fence
+  0 0
+  100 0
+  100 100
+end

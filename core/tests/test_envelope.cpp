@@ -88,6 +88,35 @@ TEST(Envelope, ErrorsCarryTheLineNumber) {
   }
 }
 
+TEST(Envelope, ValueErrorsCarryTheLineNumber) {
+  // A value that parses but is not allowed is reported at its directive, the
+  // same as a value that does not parse.
+  const auto line_of = [](const std::string& text) {
+    try {
+      gfg::parse_envelope(text);
+    } catch (const gfg::EnvelopeError& e) {
+      return e.line();
+    }
+    return -1;
+  };
+  EXPECT_EQ(line_of(with("margin 5", "margin 0")), 4);
+  EXPECT_EQ(line_of(with("altitude 2 120", "altitude 120 2")), 5);
+  EXPECT_EQ(line_of(with("max_state_age 0.5", "max_state_age 0")), 6);
+  EXPECT_EQ(line_of(with("max_leg 300", "max_leg -3")), 7);
+}
+
+TEST(Envelope, ValidatingAnEnvelopeBuiltInCodeHasNoLine) {
+  auto env = gfg::parse_envelope(kValid);
+  env.margin = 0.0;
+  try {
+    gfg::validate_envelope(env);
+    FAIL();
+  } catch (const gfg::EnvelopeError& e) {
+    EXPECT_EQ(e.line(), 0);
+    EXPECT_NE(std::string(e.what()).find("margin must be greater than zero"), std::string::npos);
+  }
+}
+
 TEST(Envelope, RepeatedKeyIsAnError) {
   expect_refused(with("margin 5", "margin 5\nmargin 1"), "'margin' is set twice");
 }

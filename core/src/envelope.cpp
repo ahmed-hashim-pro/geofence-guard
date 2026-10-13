@@ -66,33 +66,53 @@ void check_polygon(const Polygon& poly, const std::string& what, int line) {
   }
 }
 
-}  // namespace
+// Where each directive appeared, so a value that parses but is not allowed
+// (a zero margin, an inverted altitude band) is reported at its line like any
+// other error. All zero for an envelope built in code.
+struct DirectiveLines {
+  int frame = 0;
+  int margin = 0;
+  int altitude = 0;
+  int max_state_age = 0;
+  int max_leg = 0;
+  int fence = 0;
+  std::vector<int> exclusions;  // parallel to Envelope::exclusions
+};
 
-void validate_envelope(const Envelope& env) {
-  if (!valid_name(env.frame)) throw EnvelopeError(0, "frame must be a plain identifier");
+void check_values(const Envelope& env, const DirectiveLines& at) {
+  if (!valid_name(env.frame)) throw EnvelopeError(at.frame, "frame must be a plain identifier");
   if (!(env.margin > 0.0)) {
-    throw EnvelopeError(0, "margin must be greater than zero: a vehicle tracking a setpoint "
-                           "on the fence line is outside it half the time");
+    throw EnvelopeError(at.margin, "margin must be greater than zero: a vehicle tracking a "
+                                   "setpoint on the fence line is outside it half the time");
   }
   if (!(env.min_altitude < env.max_altitude)) {
-    throw EnvelopeError(0, "altitude minimum must be below the maximum");
+    throw EnvelopeError(at.altitude, "altitude minimum must be below the maximum");
   }
-  if (!(env.max_state_age > 0.0)) throw EnvelopeError(0, "max_state_age must be greater than zero");
+  if (!(env.max_state_age > 0.0)) {
+    throw EnvelopeError(at.max_state_age, "max_state_age must be greater than zero");
+  }
   if (env.max_leg && !(*env.max_leg > 0.0)) {
-    throw EnvelopeError(0, "max_leg must be greater than zero");
+    throw EnvelopeError(at.max_leg, "max_leg must be greater than zero");
   }
-  check_polygon(env.fence, "fence", 0);
+  check_polygon(env.fence, "fence", at.fence);
 
   std::set<std::string> names;
-  for (const auto& zone : env.exclusions) {
-    if (!valid_name(zone.name)) throw EnvelopeError(0, "exclusion zone name '" + zone.name + "' is not a plain identifier");
-    if (!names.insert(zone.name).second) throw EnvelopeError(0, "exclusion zone '" + zone.name + "' is defined twice");
-    check_polygon(zone.polygon, "exclusion zone '" + zone.name + "'", 0);
+  for (std::size_t i = 0; i < env.exclusions.size(); ++i) {
+    const auto& zone = env.exclusions[i];
+    const int line = i < at.exclusions.size() ? at.exclusions[i] : 0;
+    if (!valid_name(zone.name)) throw EnvelopeError(line, "exclusion zone name '" + zone.name + "' is not a plain identifier");
+    if (!names.insert(zone.name).second) throw EnvelopeError(line, "exclusion zone '" + zone.name + "' is defined twice");
+    check_polygon(zone.polygon, "exclusion zone '" + zone.name + "'", line);
   }
 }
 
+}  // namespace
+
+void validate_envelope(const Envelope& env) { check_values(env, DirectiveLines{}); }
+
 Envelope parse_envelope(const std::string& text) {
   Envelope env;
+  DirectiveLines at;
   std::set<std::string> seen;
   std::istringstream in(text);
 
@@ -132,6 +152,7 @@ Envelope parse_envelope(const std::string& text) {
         if (z.name == t[1]) throw EnvelopeError(line, "exclusion zone '" + t[1] + "' is defined twice");
       }
       env.exclusions.push_back({t[1], {}});
+      at.exclusions.push_back(line);
       open_polygon = &env.exclusions.back().polygon;
       open_what = "exclusion zone '" + t[1] + "'";
       open_line = line;
@@ -141,23 +162,29 @@ Envelope parse_envelope(const std::string& text) {
     if (!seen.insert(key).second) throw EnvelopeError(line, "'" + key + "' is set twice");
 
     if (key == "frame") {
+      at.frame = line;
       expect_args(t, 1, line);
       if (!valid_name(t[1])) throw EnvelopeError(line, "frame must be letters, digits, '_' or '-'");
       env.frame = t[1];
     } else if (key == "margin") {
+      at.margin = line;
       expect_args(t, 1, line);
       env.margin = number(t[1], line);
     } else if (key == "altitude") {
+      at.altitude = line;
       expect_args(t, 2, line);
       env.min_altitude = number(t[1], line);
       env.max_altitude = number(t[2], line);
     } else if (key == "max_state_age") {
+      at.max_state_age = line;
       expect_args(t, 1, line);
       env.max_state_age = number(t[1], line);
     } else if (key == "max_leg") {
+      at.max_leg = line;
       expect_args(t, 1, line);
       env.max_leg = number(t[1], line);
     } else if (key == "fence") {
+      at.fence = line;
       expect_args(t, 0, line);
       open_polygon = &env.fence;
       open_what = "fence";
@@ -174,7 +201,7 @@ Envelope parse_envelope(const std::string& text) {
     if (seen.count(required) == 0) throw EnvelopeError(0, std::string("missing required '") + required + "'");
   }
 
-  validate_envelope(env);
+  check_values(env, at);
   return env;
 }
 

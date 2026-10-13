@@ -85,6 +85,10 @@ if(GFG_BUILD_TESTS)
   set_tests_properties(cli_check_reports_reason PROPERTIES PASS_REGULAR_EXPRESSION "path_leaves_fence")
   add_test(NAME cli_bad_envelope COMMAND geofence-guard validate ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/typo.fence)
   set_tests_properties(cli_bad_envelope PROPERTIES WILL_FAIL ON)
+  # A value that parses but is not allowed is reported at its line too.
+  add_test(NAME cli_bad_value_line COMMAND geofence-guard validate ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/zero_margin.fence)
+  set_tests_properties(cli_bad_value_line PROPERTIES
+    PASS_REGULAR_EXPRESSION "line 2: margin must be greater than zero")
   # render: the picture must carry the same decisions as `check`.
   add_test(NAME cli_render_marks_refusal COMMAND geofence-guard render ${EX}/field.fence ${EX}/shortcut.csv)
   set_tests_properties(cli_render_marks_refusal PROPERTIES
